@@ -60,11 +60,17 @@ def getvalidfilename(filename):
 note_sep = '=========='
 
 commentstr = '.. '  # RST (reStructuredText) comment
-
+# EXAMPLE Kindle clipping.
+#==========
+#Slouching Towards Bethlehem: Essays (Didion, Joan)
+#- Your Highlight on page 139 | Location 1587-1588 | Added on Friday, January 24, 2020 11:44:14 PM
+#
+# Example
+#==========
 regex_title = re.compile('^(.*)\((.*)\)$')
-regex_info = re.compile(r'^- (\S+) (.*)[\s|]+Added on\s+(.+)$')
-regex_loc = re.compile('Loc\. ([\d\-]+)')
-regex_page = re.compile('Page ([\d\-]+)')
+regex_info = re.compile('^- [yY]our (\S+) (.*)[\s|]+Added on\s+(.+)$')
+regex_loc = re.compile('(Loc|Location)\. ([\d\-]+)')
+regex_page = re.compile('[pP]age ([\d\-]+)')
 regex_date = re.compile('Added on\s+(.+)$')
 
 regex_hashline = re.compile('^\.\.\s*([a-fA-F0-9]+)' + '\s*')
@@ -111,8 +117,6 @@ print('Processing clippings file', infile)
         
 mc = open(infile, 'r')
 
-mc.read(1)  # Skip first character
-
 line = mc.readline().strip()
         
 while line:
@@ -121,6 +125,7 @@ while line:
     result_title = regex_title.findall(key)    # Extract title and author
     line = mc.readline().strip()                # Read information line
     note_type, location, date = regex_info.findall(line)[0]    # Extract note type, location and date
+    print(note_type, location, date)
     result_loc = regex_loc.findall(location)
     result_page = regex_page.findall(location)
     if len(result_title):
@@ -187,10 +192,12 @@ for key in pub_title.keys():
     short_title = title.split('|')[0]
     short_title = short_title.split(' - ')[0]
     short_title = short_title.split('. ')[0]
+    short_title = short_title.strip().replace(" ", "_")
+    short_author = author.strip().replace(" ", "_")
     if len(short_title) > 128:
         short_title = short_title[:127]
     if (nr_notes > 2):
-        fname = author + ' - ' + short_title.strip() + '.rst'
+        fname = short_title + "__" + short_author + '.rst'
         short = 0
     else:
         fname = 'short_notes.rst'
