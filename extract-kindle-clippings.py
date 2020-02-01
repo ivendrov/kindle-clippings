@@ -117,8 +117,8 @@ print('Processing clippings file', infile)
         
 mc = open(infile, 'r')
 
+# Process clippings file into data structures.
 line = mc.readline().strip()
-        
 while line:
     
     key = line.strip()
@@ -236,12 +236,31 @@ for key in pub_title.keys():
             out.write(':authors: ' + author + '\n\n')
             
     last_date = datetime.now()
-    
+
+    # Remove duplicate highlights by keeping the last in a sequence of substrings / superstrings.
+    prev_note_hash = None
+    unique_notes = []
     for note_hash in pub_hashes[key]:
+        note = notes[note_hash]
+        note_type = types[note_hash]
+
+        if prev_note_hash is not None:
+            prev_note = notes[prev_note_hash]
+            if note_type == 'Highlight':
+                if note in prev_note or prev_note in note:
+                    print("Discarding duplicate highlight")
+                    continue
+        prev_note_hash = note_hash
+    
+    for note_hash in unique_notes:
         note = notes[note_hash]
         note_type = types[note_hash]
         note_date = dates[note_hash]
         note_loc = locations[note_hash]
+
+
+
+
         if note_hash in existing_hashes:
             print('Note', note_hash, 'is already in', existing_hashes[note_hash])
         else:
