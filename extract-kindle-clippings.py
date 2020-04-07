@@ -250,7 +250,10 @@ for key in pub_title.keys():
                 if note in prev_note or prev_note in note:
                     print("Discarding duplicate highlight")
                     continue
+            # Now we know prev_note_hash is not a duplicate.
+            unique_notes.append(prev_note_hash)
         prev_note_hash = note_hash
+    unique_notes.append(prev_note_hash)
     
     for note_hash in unique_notes:
         note = notes[note_hash]
